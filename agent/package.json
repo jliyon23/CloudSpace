@@ -1,0 +1,29 @@
+{
+    "name": "electron-file-monitor",
+    "version": "1.0.0",
+    "description": "File monitor with Gemini AI",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "dev": "electronmon .",
+        "dist": "electron-builder"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^28.1.0",
+        "electron-builder": "^26.0.12",
+        "electronmon": "^2.0.3"
+    },
+    "dependencies": {
+        "@google/generative-ai": "^0.2.1",
+        "axios": "^1.8.1",
+        "chokidar": "^3.5.3",
+        "dotenv": "^16.4.7",
+        "image-type": "^5.2.0",
+        "mammoth": "^1.6.0",
+        "nodemon": "^3.1.9",
+        "pdf-parse": "^1.1.1"
+    }
+}

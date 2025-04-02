@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com;" />
+    <title>IMCB</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'IBM Plex Mono', monospace; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold border-b border-gray-700 pb-4 text-white text-center">
+                Cloud <span class="text-white">Space</span>
+            </h1>
+            <p class="text-center text-sm">An Intelligent Multi-Cloud Backup System</p>
+        </header>
+
+        <!-- Agent Token Section -->
+        <div class="bg-zinc-900 rounded-lg p-4 shadow-lg border border-gray-800 mb-6">
+            <h2 class="text-xl font-medium mb-3 text-white flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                Agent Token
+            </h2>
+            <div class="flex space-x-2">
+                <input type="text" id="agentTokenInput" class="flex-1 px-4 py-2 border border-gray-700 rounded  text-black focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your agent token" />
+                <button id="saveTokenButton" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    Save
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Directories Section -->
+            <div class="w-full md:w-1/2 space-y-6">
+                <div class="bg-zinc-900 rounded-lg p-4 shadow-lg border border-gray-800">
+                    <h2 class="text-xl font-medium mb-3 text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        </svg>
+                        Monitored Directories
+                    </h2>
+                    <ul id="directoriesList" class="mb-4 space-y-2 max-h-64 overflow-y-auto"></ul>
+                    <button id="addDirectory" class="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 text-sm">
+                        + Add Directory
+                    </button>
+                </div>
+            </div>
+
+            <!-- Log Section -->
+            <div class="w-full md:w-1/2">
+                <div class="bg-zinc-900 rounded-lg p-4 shadow-lg border border-gray-800">
+                    <h2 class="text-xl font-medium mb-3 text-white flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Log
+                    </h2>
+                    <div id="log" class="bg-zinc-900 border border-gray-800 rounded p-3 h-96 overflow-y-auto text-sm text-gray-300"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./renderer.js"></script>
+</body>
+</html>
