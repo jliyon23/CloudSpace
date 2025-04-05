@@ -14,6 +14,12 @@ const Dashboard = () => {
   const [totalSize, setTotalSize] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  // New state for delete confirmation
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    show: false,
+    fileId: null,
+    fileName: ''
+  });
 
   const logout = useAuthStore((state) => state.logout);
   const token = useAuthStore((state) => state.token);
@@ -77,24 +83,44 @@ const Dashboard = () => {
     return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
-  const handleDelete = async (id) => {
+  // Show delete confirmation dialog
+  const showDeleteConfirmation = (id, name) => {
+    setDeleteConfirmation({
+      show: true,
+      fileId: id,
+      fileName: name
+    });
+  };
+
+  // Hide delete confirmation dialog
+  const hideDeleteConfirmation = () => {
+    setDeleteConfirmation({
+      show: false,
+      fileId: null,
+      fileName: ''
+    });
+  };
+
+  // Perform the actual deletion
+  const confirmDelete = async () => {
     try {
-      console.log('Deleting file:', id);
-      const response = await api.post('/file/delete', { token, id });
-      if (response.data && response.data.success) {
-        setFiles(files.filter(file => file.id !== id));
+      console.log('Deleting file:', deleteConfirmation.fileId);
+      const response = await api.post('/file/delete', { token, id: deleteConfirmation.fileId });
+      if (response.data) {
+        setFiles(files.filter(file => file._id !== deleteConfirmation.fileId));
       }
+      hideDeleteConfirmation();
     } catch (error) {
       console.error('Error deleting file:', error);
+      hideDeleteConfirmation();
     }
-  }
+  };
 
   return (
     <div className="bg-zinc-950 text-white min-h-screen flex overflow-x-hidden">
       {/* Sidebar */}
-      
-
       <Sidebar />
+      
       {/* Main Content */}
       <div className="flex-1 min-w-0 lg:ml-20 transition-all duration-300">
         <header className="bg-zinc-900 shadow-md border-b border-zinc-800 sticky top-0 z-40">
@@ -110,55 +136,53 @@ const Dashboard = () => {
               <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
             <div className="relative">
-      {/* Bell Icon with notification indicator */}
-      <button
-        className="p-2 rounded-full hover:bg-zinc-800 transition-colors duration-200 relative"
-        onClick={() => setShowNotifications(!showNotifications)}
-      >
-        <Bell className="text-zinc-200" size={20} />
-        {notifications.length > 0 && (
-          <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
-        )}
-      </button>
+              {/* Bell Icon with notification indicator */}
+              <button
+                className="p-2 rounded-full hover:bg-zinc-800 transition-colors duration-200 relative"
+                onClick={() => setShowNotifications(!showNotifications)}
+              >
+                <Bell className="text-zinc-200" size={20} />
+                {notifications.length > 0 && (
+                  <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                )}
+              </button>
 
-      {/* Glassmorphic Notification Popup */}
-      {showNotifications && (
-        <div className="absolute right-0 mt-2 w-72 backdrop-blur-md  bg-zinc-900/80 text-zinc-200 rounded-xl border border-zinc-500/50 shadow-xl overflow-hidden z-50">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-zinc-800/50">
-            <h3 className="text-sm font-medium">Notifications</h3>
-            <span className="text-xs text-zinc-400">{notifications.length} new</span>
-          </div>
-          
-          {/* Notification List */}
-          <div className="max-h-64 overflow-y-auto">
-            {notifications.length > 0 ? (
-              <ul className="divide-y divide-zinc-800/50">
-                {notifications.map((notification) => (
-                  <li key={notification.id} className="p-3 hover:bg-zinc-800/40 transition-colors duration-200">
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0 p-1 bg-zinc-800/70 rounded-full">
-                        <Bell size={14} className="text-zinc-300" />
+              {/* Glassmorphic Notification Popup */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-72 backdrop-blur-md bg-zinc-900/80 text-zinc-200 rounded-xl border border-zinc-500/50 shadow-xl overflow-hidden z-50">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-zinc-800/50">
+                    <h3 className="text-sm font-medium">Notifications</h3>
+                    <span className="text-xs text-zinc-400">{notifications.length} new</span>
+                  </div>
+                  
+                  {/* Notification List */}
+                  <div className="max-h-64 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      <ul className="divide-y divide-zinc-800/50">
+                        {notifications.map((notification) => (
+                          <li key={notification.id} className="p-3 hover:bg-zinc-800/40 transition-colors duration-200">
+                            <div className="flex items-start space-x-3">
+                              <div className="flex-shrink-0 p-1 bg-zinc-800/70 rounded-full">
+                                <Bell size={14} className="text-zinc-300" />
+                              </div>
+                              <div className="flex-1">
+                                <p className={`text-sm ${notification.status === "success"? "text-green-500" : "text-red-500"}`}>{notification.message}</p>
+                                <p className="text-xs text-zinc-400 mt-1">{notification.date}</p>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="p-4 text-center text-zinc-400 text-sm">
+                        No new notifications
                       </div>
-                      <div className="flex-1">
-                        <p className={`text-sm ${notification.status === "success"? "text-green-500" : "text-red-500"}`}>{notification.message}</p>
-                        <p className="text-xs text-zinc-400 mt-1">{notification.date}</p>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-4 text-center text-zinc-400 text-sm">
-                No new notifications
-              </div>
-            )}
-          </div>
-          
-          
-        </div>
-      )}
-    </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -174,7 +198,6 @@ const Dashboard = () => {
                   <i className="ph ph-files text-xl text-indigo-400"></i>
                 </div>
               </div>
-              
             </div>
             <div className="bg-zinc-900 p-4 rounded-xl shadow-md border border-zinc-800 transition-all hover:border-zinc-700">
               <div className="flex items-center justify-between">
@@ -186,7 +209,6 @@ const Dashboard = () => {
                   <i className="ph ph-database text-xl text-blue-400"></i>
                 </div>
               </div>
-              
             </div>
             <div className="bg-zinc-900 p-4 rounded-xl shadow-md border border-zinc-800 transition-all hover:border-zinc-700">
               <div className="flex items-center justify-between">
@@ -198,9 +220,7 @@ const Dashboard = () => {
                   <i className="ph ph-cloud text-xl text-purple-400"></i>
                 </div>
               </div>
-              
             </div>
-            
           </div>
 
           <div className="bg-zinc-900 rounded-xl shadow-md border border-zinc-800 overflow-hidden">
@@ -217,7 +237,6 @@ const Dashboard = () => {
                   />
                   <i className="ph ph-magnifying-glass absolute right-3 top-2.5 text-zinc-400"></i>
                 </div>
-
               </div>
             </div>
 
@@ -260,11 +279,14 @@ const Dashboard = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex space-x-2">
-                          <a href={file.url.replace('pdf', 'jpg')} target="_blank" className="p-1 hover:bg-zinc-800 rounded">
+                          <a href={file.url && file.url.replace('pdf', 'jpg')} target="_blank" className="p-1 hover:bg-zinc-800 rounded hover:scale-110 duration-300">
                             <i className="ph ph-eye text-blue-400"></i>
                           </a>
                           
-                          <button onClick={handleDelete(file._id)} className="p-1 hover:bg-zinc-800 rounded">
+                          <button 
+                            onClick={() => showDeleteConfirmation(file._id, file.name)} 
+                            className="p-1 hover:bg-zinc-800 rounded hover:scale-110 duration-300"
+                          >
                             <i className="ph ph-trash text-red-400"></i>
                           </button>
                         </div>
@@ -277,6 +299,37 @@ const Dashboard = () => {
           </div>
         </main>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmation.show && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-xl w-full max-w-md shadow-xl animate-fadeIn">
+            <div className="p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-red-500/10">
+                <i className="ph ph-warning text-2xl text-red-500"></i>
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-2">Delete Confirmation</h3>
+              <p className="text-zinc-300 text-center mb-6">
+                Are you sure you want to delete the file <span className="font-semibold text-zinc-100">"{deleteConfirmation.fileName}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex items-center justify-center space-x-4">
+                <button
+                  onClick={hideDeleteConfirmation}
+                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
